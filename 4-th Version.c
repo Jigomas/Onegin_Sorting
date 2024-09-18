@@ -13,7 +13,7 @@ enum All_Exit_Codes
 
 
 
-struct All_Needed_For_Onegin
+struct Must_Needed_For_Text
 {
     char *Text;
     char **Addresses;
@@ -25,13 +25,13 @@ struct All_Needed_For_Onegin
 
 void Reader(char **Output_Text, int Size_Of_File, int *Amount_Of_Strings, char **Addresses);
 
-void Bubble_Sort_Of_Strings(char **Starting_Addresses, int Amount_Of_Strings);
+void Buble_Sorting(void *Starting_Addresses, int Amount_Of_Strings,
+                                            int (*Compare_Func)(void *, void *));
 
-int Compare_Funct (void *First_String, void *Second_String);
-
+int Compare_Func (void *First_String, void *Second_String);
 
 void Quick_Sort(void *Starting_Addresses, int Left_Ad, int Right_Ad,
-                                            int (*Compare_Funct)(void *, void *));
+                                            int (*Compare_Func)(void *, void *));
 
 void Swapping_Places(void *Starting_Addresses, int Address_Of_Sting_1, int Address_Of_Sting_2);
 
@@ -49,21 +49,20 @@ int main()
 
 
 
-    struct All_Needed_For_Onegin Onegin = {0, 0, 0, 0};
+    struct Must_Needed_For_Text Onegin = {0, 0, 0, 0};
 
-    Onegin.Text = (char *)calloc(Size_Of_File, sizeof(char*));
-
+    Onegin.Text = (char *)calloc(Size_Of_File, sizeof(char));
     Onegin.Amount_Of_Strings = 0;
-
-
     Onegin.Addresses = (char **)calloc(Size_Of_File, sizeof(char*));
     Onegin.Addresses[0] = &(Onegin.Text[0]);
 
 
+
     Reader(&Onegin.Text, Size_Of_File, &Onegin.Amount_Of_Strings, Onegin.Addresses);
 
-    printf("\n          The text was:\n\v");
 
+
+    printf("\n          The text was:\n\v");
     for (int i = 0; i < Size_Of_File - Onegin.Amount_Of_Strings; i++)
         printf("%c", Onegin.Text[i]);
 
@@ -73,14 +72,10 @@ int main()
     printf("\nAmount Of Strings: %d\n", Onegin.Amount_Of_Strings);
 
 
-    //Bubble_Sort_Of_Strings(Onegin.Addresses, Onegin.Amount_Of_Strings);
+    Buble_Sorting( Onegin.Addresses, Onegin.Amount_Of_Strings, Compare_Func);
 
-    Quick_Sort( Onegin.Addresses, 0, Onegin.Amount_Of_Strings, Compare_Funct);
 
     printf("\n          The text became:\n\v");
-
-
-
     for (int i = 0; i < Onegin.Amount_Of_Strings; i++)
     {
         int j = 0;
@@ -91,6 +86,8 @@ int main()
         }
         printf("\n");
     }
+
+
 
     free (Onegin.Text);
     free (Onegin.Addresses);
@@ -123,10 +120,16 @@ void Reader(char **Output_Text, int Size_Of_File, int *Amount_Of_Strings, char *
 }
 
 
+/************
 
 void Quick_Sort(void *Starting_Addresses, int Left_Ad, int Right_Ad,
-                                            int (*Compare_Funct)(void *, void *))
+                                            int (*Compare_Func)(void *, void *))
 {
+
+    //int a = (*Compare_Func)((char *)Starting_Addresses + 0 * sizeof(char*), (char *)Starting_Addresses + 1 * sizeof(char*) );
+    //printf("Compare_Func %d", a);
+
+    Swapping_Places (Starting_Addresses, 0, 2);
     int i = 0, Last_Ad = 0;
     if (Left_Ad >= Right_Ad)
         return;
@@ -135,37 +138,50 @@ void Quick_Sort(void *Starting_Addresses, int Left_Ad, int Right_Ad,
 
     Last_Ad = Left_Ad;
 
+
+
+    //        for (int i = 0; i < 14; i++)
+    //        {
+    //            int j = 0;
+    //            while ( *((char *)Starting_Addresses + (i*14 + j) * sizeof(char*)) != '\n')
+    //            {
+    //                printf("%c", (char *)Starting_Addresses + (i*14 + j) * sizeof(char*));
+    //                j++;
+    //            }
+    //            printf("\n");
+    }
+
+
     for (i = Left_Ad + 1; i <= Right_Ad; i++)
-        if ( (*Compare_Funct)(  ((char *)Starting_Addresses + i * sizeof(char*)),  ((char *)Starting_Addresses + Left_Ad * sizeof(char*))  ) < 0)
+
+        if ( (*Compare_Func)(  ((char *)Starting_Addresses + i * sizeof(char*)),  ((char *)Starting_Addresses + Left_Ad * sizeof(char*))  ) < 0)
             Swapping_Places (Starting_Addresses, ++Last_Ad, i);
 
     Swapping_Places (Starting_Addresses, Left_Ad, Last_Ad);
-
-    Quick_Sort(Starting_Addresses, Left_Ad, Last_Ad - 1, Compare_Funct);
-    Quick_Sort(Starting_Addresses, Left_Ad, Right_Ad, Compare_Funct);
+    Quick_Sort(Starting_Addresses, Left_Ad, Last_Ad - 1, Compare_Func);
+    Quick_Sort(Starting_Addresses, Left_Ad, Right_Ad, Compare_Func);
 }
 
+***********/
 
 
-int Compare_Funct (void *First_String, void *Second_String)
+
+int Compare_Func (void *First_String, void *Second_String)
 {
-    //return strcmp(First_String, Second_String);
-
-
     int j = 0;
 
-    while ( *((char *)First_String + j * sizeof(char*)) != '\n' &&
-            *((char *)Second_String + j * sizeof(char*)) != '\n' != 0)
+    while ( *((char *)First_String + j * sizeof(char)) != '\n' &&
+            *((char *)Second_String + j * sizeof(char)) != '\n')
         {
             if  (
-                tolower( *((char *)First_String + j * sizeof(char*)) ) -
-                tolower( *((char *)First_String + j * sizeof(char*)) ) > 0
+                tolower( *((char *)First_String + j * sizeof(char)) ) -
+                tolower( *((char *)Second_String + j * sizeof(char)) ) > 0
                 )
                 return 1;
 
             else if (
-                tolower(  *((char *)First_String + j * sizeof(char*)) ) -
-                tolower(  *((char *)First_String + j * sizeof(char*)) ) == 0
+                tolower(  *((char *)First_String + j * sizeof(char)) ) -
+                tolower(  *((char *)Second_String + j * sizeof(char)) ) == 0
                     )
                 j += 1;
 
@@ -175,91 +191,70 @@ int Compare_Funct (void *First_String, void *Second_String)
 
     return 0;
 }
-/*******
-void qsort(void *v[], int left, int right, int (*comp)(void *, void *))
+
+
+
+
+
+
+void Buble_Sorting(void *Starting_Addresses, int Amount_Of_Strings,
+                                            int (*Compare_Func)(void *, void *))
 {
-    int i, last;
-    void swap(void *v[], int, int);
-    if (left >= right)
-        return;
+    printf("Was    %d\n",    ((char *)Starting_Addresses + 0 * sizeof(char*)) );
+    printf("       %d\n\n",  ((char *)Starting_Addresses + 1 * sizeof(char*))  );
 
-    swap(v, left, (left + right )/2);
-    last = left;
+    printf("Was    %d\n",    *((char *)Starting_Addresses + 0 * sizeof(char*)) );
+    printf("       %d\n\n",  *((char *)Starting_Addresses + 1 * sizeof(char*))  );
+    Swapping_Places(Starting_Addresses, 0, 0 + 1);
 
-    for (i = left+1; i <= right; i++)
-        if ((*comp)(v[i], v[left]) < 0)
-             swap(v, ++last, i);
+    printf("Became %d\n",    ((char *)Starting_Addresses + 0 * sizeof(char*)));
+    printf("       %d\n",    ((char *)Starting_Addresses + 1 * sizeof(char*)));
+    printf("       %d\n",    ((char *)Starting_Addresses + 2 * sizeof(char*)));
+    printf("       %d\n",    ((char *)Starting_Addresses + 3 * sizeof(char*)));
+    printf("       %d\n",    ((char *)Starting_Addresses + 4 * sizeof(char*)));
+    printf("       %d\n",    ((char *)Starting_Addresses + 5 * sizeof(char*)));
+    printf("       %d\n\n",  ((char *)Starting_Addresses + 6 * sizeof(char*)));
 
-    swap(v, left, last);
-    qsort(v, left, last-1, comp);
-    qsort(v, last+1, right, comp);
-}
-*/
+    printf("Became %d\n",    *((char *)Starting_Addresses + 0 * sizeof(char*)));
+    printf("       %d\n",    *((char *)Starting_Addresses + 1 * sizeof(char*)));
+    printf("       %d\n",    *((char *)Starting_Addresses + 2 * sizeof(char*)));
+    printf("       %d\n",    *((char *)Starting_Addresses + 3 * sizeof(char*)));
+    printf("       %d\n",    *((char *)Starting_Addresses + 4 * sizeof(char*)));
+    printf("       %d\n",    *((char *)Starting_Addresses + 5 * sizeof(char*)));
+    printf("       %d\n\n",  *((char *)Starting_Addresses + 6 * sizeof(char*)));
 
-
-/*******
-void Bubble_Sort_Of_Strings(char **Starting_Addresses, int Amount_Of_strings)
-{
-    for (int Left_Ad = 0; Left_Ad < Amount_Of_strings; Left_Ad++)
-    {
-        for (int i = 0; i < Amount_Of_strings - 1; i++)     //ВЫЧИТАТЬ Left_Ad
-        {
-            int j = 0;
-            while (j < (Starting_Addresses[i + 1] - Starting_Addresses[i]) &&
-                 Starting_Addresses[i][j] != 0)  // Разбить J  на две разных переменных, чтобы скипать не буквы
-            {
-                if  (
-                    tolower(Starting_Addresses[i][j]) - tolower(Starting_Addresses[i + 1][j]) > 0
-                    )
-                {
-                    Swapping_Places(Starting_Addresses, i, i + 1);
-
-                    break;
-                }
-
-                else if (
-                    tolower(Starting_Addresses[i][j]) -
-                    tolower(Starting_Addresses[i + 1][j]) == 0
-                        )
-                {
-                    j += 1;
-                }
-
-                else
-                {
-                    break;
-                }
-
-            }
-        }
-    }
-}
-*/
-
-
-
-void Swapping_Places(void *Starting_Addresses, int Address_Of_Sting_1, int Address_Of_Sting_2)
-{
-
-    
     /*
-    for (int i = 0; i < sizeof(char*); i++ )
+    for (int Left_Ad = 0; Left_Ad < Amount_Of_Strings; Left_Ad++)
     {
-        char *Temp = 0;
-        Temp = ((char *)Starting_Addresses + Address_Of_Sting_1 * sizeof(char*));
+        for (int i = 0; i < Amount_Of_Strings - 1; i++)
+        {
+            int Compator = (*Compare_Func)(((char *)Starting_Addresses + (i + 1) * sizeof(char)),
+                                            ((char *)Starting_Addresses + (i) * sizeof(char)));
+            //printf("%d", Compator);
+            if  (Compator > 0)
+                Swapping_Places(Starting_Addresses, i, i + 1);
 
-        ((char *)Starting_Addresses + Address_Of_Sting_2 * sizeof(char*)) = ((char *)Starting_Addresses + Address_Of_Sting_1 * sizeof(char*));
-
-        ((char *)Starting_Addresses + Address_Of_Sting_1 * sizeof(char*)) = Temp;
+        }
     }
     */
 }
 
 
 
+
+void Swapping_Places(void *Starting_Addresses, int Address_Of_Sting_1, int Address_Of_Sting_2)
+{
+    void *Temp = 0;
+    Temp =  ((char *)Starting_Addresses + Address_Of_Sting_1 * sizeof(char*));
+    memcpy (((char *)Starting_Addresses + Address_Of_Sting_1 * sizeof(char*)), ((char *)Starting_Addresses + Address_Of_Sting_2 * sizeof(char*)), sizeof(char*));
+    memcpy (((char *)Starting_Addresses + Address_Of_Sting_2 * sizeof(char*)), Temp, sizeof(char*));
+}
+
+
+
 off_t Fsize(const char *filename)
 {
-    struct stat st;
+    struct stat st = {};
     if (stat(filename, &st) == 0)
         return st.st_size;
     return -1;
