@@ -6,7 +6,26 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+// todo read_To_Buf
+// todo
 
+/**
+ *
+ * todo Read_To_Buf
+ * todo (memcopy) Read_To_Buf 2
+ *
+ * todo Pre_Process in Buf1 switches \r\n on '0'
+ * todo in Buf1 Parse_Strings this is gonna write an adress on el after \n
+ * todo print each string and each symbol in them
+ *
+ * todo Bubl_Srt with Buf1
+ * todo test it on ints with void* and use comparatre in the easiest way
+ * todo print each address in sort b4 and after
+ *
+ * todo test comparator and use inside an strcmp
+ *
+ * todo swap and test it on strings
+ *  */
 
 enum All_Exit_Codes
 {
@@ -73,8 +92,8 @@ int main()
     Reader(&Onegin.Text, Size_Of_File, &Onegin.Amount_Of_Strings, Onegin.Addresses);
     Size_Of_File = Size_Of_File - Onegin.Amount_Of_Strings;
 
-    Swapping_Places(&Onegin.Addresses[0],&Onegin.Addresses[1], sizeof(char*));
-
+    Swapping_Places(&Onegin.Addresses[1],&Onegin.Addresses[2], sizeof(char*));
+/*
     printf("\n          The text was:\n\v");
 
 
@@ -89,13 +108,10 @@ int main()
         }
         printf("\n");
     }
-
+*/
 
 
     //printf("\t%d\n", Compare_Func(&Onegin.Addresses[12],&Onegin.Addresses[11]));
-    printf("\t%d\n", (char*)Tell_Me_Address(Onegin.Addresses, 1, sizeof(char*)));
-    printf("\t%d\n", &(Onegin.Addresses[1]));
-    printf("\t%d\n", Compare_Func(&Onegin.Addresses[13],&Onegin.Addresses[12]));
 
     printf("\nAmount Of Strings: %d\n", Onegin.Amount_Of_Strings);
 
@@ -182,16 +198,16 @@ void Swapping_Places(void *Address_Of_Sting_1, void *Address_Of_Sting_2, int Siz
     while (Size_Of_Cymbol > 0)
     {
         if      ( (Size_Of_Cymbol >> 3) > 0)
-            Adding_Memory = sizeof(long long int);
+            Adding_Memory = sizeof(__int64);
 
         else if ( (Size_Of_Cymbol >> 2) > 0)
-             Adding_Memory = sizeof(int);
+             Adding_Memory = sizeof(__int32);
 
         else if ( (Size_Of_Cymbol >> 1) > 0)
-            Adding_Memory = sizeof(short);
+            Adding_Memory = sizeof(__int16);
 
         else
-            Adding_Memory = sizeof(char);
+            Adding_Memory = sizeof(__int8);
 
         memcpy(&Temp, Address_Of_Sting_2,               Adding_Memory);
         memcpy(Address_Of_Sting_2, Address_Of_Sting_1,  Adding_Memory);
@@ -233,17 +249,13 @@ void Buble_Sorting(void *Starting_Addresses, int Amount_Of_Strings, int Size_Of_
 
     for (int j = 0; j < Amount_Of_Strings; j++)
     {
-        for (int i = 0; j < Amount_Of_Strings - 1; i++)
+        for (int i = 0; i < Amount_Of_Strings - 1; i++)
         {
-            int Comparator = (*Compare_Func)(Tell_Me_Address(Starting_Addresses, i,     Size_Of_Cymbol),
-                                           Tell_Me_Address(Starting_Addresses, i + 1, Size_Of_Cymbol));
-            //int Comparator = 1;
-            //printf("COMPARATOR: %d {\n\tLine 1: `%s`;\n\tLine 2: `%s`;\n}\n",
-            //       Comparator, ((char **)Starting_Addresses)[i], ((char **)Starting_Addresses)[j]);
+            int Comparator = strcmp(*(char **)Tell_Me_Address(Starting_Addresses, i,     Size_Of_Cymbol),
+                                    *(char **)Tell_Me_Address(Starting_Addresses, i + 1,     Size_Of_Cymbol));
+            //int Comparator = (*Compare_Func)(*(char **)Tell_Me_Address(Starting_Addresses, i,     Size_Of_Cymbol),
+            //                                 *(char **)Tell_Me_Address(Starting_Addresses, i + 1,     Size_Of_Cymbol));
 
-            //printf("%d\n", Tell_Me_Address(Starting_Addresses, i, sizeof(char*)));
-            //printf("%d\t", Comparator);
-            Comparator = 1;
             if  (Comparator > 0)
             {
                 //printf("        %d\n", Tell_Me_Address(Starting_Addresses, i,     Size_Of_Cymbol));
@@ -267,22 +279,22 @@ int Compare_Func (void *First_String, void *Second_String)  // This func is comp
 {
     int j = 0;
     //printf("%d\n", *((char*)(Tell_Me_Address)(First_String, 0, sizeof(char *))) );
-    while ( *((char*)(Tell_Me_Address)(First_String, j, sizeof(char))) != '\n' && *((char*)(Tell_Me_Address)(Second_String, j, sizeof(char))) != '\n')
+    while ( *((char*)Tell_Me_Address(First_String, j, sizeof(char*))) != '\n' && *((char*)Tell_Me_Address(Second_String, j, sizeof(char*))) != '\n')
         {
-                //int a = (int)(Tell_Me_Address)(First_String, j, sizeof(char));
+                //int a = *((char*)Tell_Me_Address(First_String, j, sizeof(char*)));
                 //printf ("%d\n", a);
                 //printf ("%d\n", *((char *)First_String + j * sizeof(char*)));
             if  (
-                tolower(*((char*)(Tell_Me_Address)(First_String, j, sizeof(char  *)))  ) -
-                tolower(*((char*)(Tell_Me_Address)(Second_String, j, sizeof(char *))) ) == 0
+                tolower(*((char*)Tell_Me_Address(First_String, j, sizeof(char  *)))  ) -
+                tolower(*((char*)Tell_Me_Address(Second_String, j, sizeof(char *))) ) > 0
                 )
             {
                 return 1;
             }
             else if
                 (
-                tolower(*((char*)(Tell_Me_Address)(First_String, j, sizeof(char  *)))  ) -
-                tolower(*((char*)(Tell_Me_Address)(Second_String, j, sizeof(char *))) ) > 0
+                tolower(*((char*)Tell_Me_Address(First_String, j, sizeof(char  *)))  ) -
+                tolower(*((char*)Tell_Me_Address(Second_String, j, sizeof(char *))) ) == 0
                 )
             {
                 //printf ("%d\n", ((char *)Second_String + j * sizeof(char*)));
